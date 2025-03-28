@@ -1,5 +1,3 @@
-# Gas_Consumption_Forecasting_with_Sarima
-Forecasting Gas Consumption in California with ARIMA/SARIMA models
 # 🔮 Gas Consumption Forecasting with Time Series Models
 
 Forecasting monthly residential gas consumption in California using ARIMA, SARIMA, and ETS models in R.
