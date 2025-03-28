@@ -2,7 +2,7 @@
 
 Forecasting monthly residential gas consumption in California using ARIMA, SARIMA, and ETS models in R.
 
-<img src="https://raw.githubusercontent.com/eledon/main/Gas%20Consumption%20Forecasting%20with%20Time%20Series%20Models/david-griffiths-Z3cBD6YZhOg-unsplash.jpg" width="500" height="300"/>
+<img src="https://raw.githubusercontent.com/eledon/Gas%20Consumption%20Forecasting%20with%20Time%20Series%20Models/david-griffiths-Z3cBD6YZhOg-unsplash.jpg" width="500" height="300"/>
 
 ![R](https://img.shields.io/badge/R-TimeSeries-blue?logo=r)
 ![Status](https://img.shields.io/badge/Status-Completed-brightgreen)
