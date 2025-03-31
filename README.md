@@ -14,19 +14,20 @@ Forecasting monthly residential gas consumption in California using ARIMA, SARIM
 ## 📘 Table of Contents
 - [Overview](#overview)
 - [Technologies](#technologies)
-- [Key Features](#key-features)
+- [Research Question](#research-question)
 - [Dataset](#dataset)
-- [Methodology](#methodology)
+- [Exploratory Data Analysis](#exploratory-data-analysis)
+- [Modeling](#modeling)
+- [Model Evaluation](#model-evaluation)
 - [Forecast Accuracy](#forecast-accuracy)
 - [Getting Started](#getting-started)
-- [Next Steps](#next-steps)
 - [Contact](#contact)
 
 ---
 
 ## 🧭 Overview
 
-This project forecasts **monthly residential gas consumption in California** using time series models. It compares the performance of ARIMA, SARIMA, and ETS models and includes thorough diagnostics and residual analysis.
+This project forecasts **monthly residential gas consumption in California** using time series models. It compares ARIMA, SARIMA, and ETS models using both forecast accuracy and residual diagnostics to determine the most reliable forecasting approach.
 
 ---
 
@@ -38,13 +39,9 @@ This project forecasts **monthly residential gas consumption in California** usi
 
 ---
 
-## 🌟 Key Features
+## ❓ Research Question
 
-- 📈 STL decomposition of seasonal patterns
-- 🧪 ADF, KPSS, McLeod-Li, and Ljung-Box residual diagnostics
-- 🔍 ACF/PACF-guided model development
-- 🔁 Log transformation, seasonal differencing
-- 🔍 Model comparison using in-sample and out-of-sample accuracy
+> _Which time series forecasting model provides the most accurate and statistically reliable predictions of monthly residential gas consumption in California: ARIMA, SARIMA, or ETS?_
 
 ---
 
@@ -52,37 +49,54 @@ This project forecasts **monthly residential gas consumption in California** usi
 
 - **Source:** [U.S. EIA - California Natural Gas Consumption](https://www.eia.gov/dnav/ng/hist/n3010ca2m.htm)
 - **Frequency:** Monthly
-- **Period:** 1989–2024
+- **Period:** January 1989 – September 2024
 - **Unit:** Million Cubic Feet
-- **Data points:** 421
-- **Preprocessing:** One missing value (Jan 2024) imputed using the historical average for January
+- **Preprocessing:** One missing value (January 2024) was imputed using the historical January average
 
 ---
 
-## 🧠 Methodology
+## 🔍 Exploratory Data Analysis
 
-### 1. Preliminary Data Testing
+- **Trend and Seasonality:** Clear annual seasonality with peaks in winter months and troughs in summer
+- **Variance Behavior:** A log transformation was applied to stabilize variance
+- **Decomposition:** STL decomposition revealed strong seasonal components
+- **Distributional Characteristics:** Histogram showed right-skewed distribution (skewness = 0.73, kurtosis = -0.77)
+- **Stationarity:** ADF and KPSS tests indicated non-stationarity, addressed using seasonal differencing
+- **Autocorrelation:** ACF and PACF plots showed repeating seasonal spikes
 
-- **Stationarity:** ADF and KPSS tests indicated the need for seasonal differencing
-- **Distribution:** Skewness = 0.73, Kurtosis = -0.77; Q-Q plot showed deviation from normality (especially lower tail)
-- **Variance behavior:** Log transformation applied to stabilize variance
-- **Autocorrelation:** ACF and PACF plots showed strong seasonal effects
+---
 
-### 2. Exploratory Data Analysis
+## ⚙️ Modeling
 
-- Time series plots, histogram, Q-Q plot, STL decomposition
+The following models were developed:
 
-### 3. Model Building
+- **Basic ARIMA(2,0,2)**  
+  A non-seasonal ARIMA model applied to log-transformed data.
 
-- **Basic ARIMA** (non-seasonal)
-- **Auto SARIMA** via `auto.arima()`
-- **Grid SARIMA** selected as final model
-- **ETS (M,N,A)** model used for benchmark comparison
+- **Auto SARIMA(2,0,1)(0,1,1)[12]**  
+  A seasonal ARIMA model selected by `auto.arima()` with drift.
 
-### 4. Model Evaluation
+- **Grid SARIMA(1,0,3)(0,1,1)[12]**  
+  A manually tuned SARIMA model selected based on AIC and residual diagnostics.
 
-- Forecast accuracy metrics: RMSE, MAE, MAPE
-- Residual diagnostics: ACF1, Ljung-Box, McLeod-Li tests
+- **ETS(M,N,A)**  
+  A multiplicative error model with no trend and additive seasonality, used as a benchmark.
+
+---
+
+## 📏 Model Evaluation
+
+Models were assessed based on both **forecast accuracy** and **diagnostic tests**:
+
+- **Accuracy metrics**: RMSE, MAE, MAPE, and Theil’s U
+- **Residual diagnostics**:
+  - **Ljung-Box** for autocorrelation
+  - **McLeod-Li** for ARCH effects
+  - **Jarque-Bera** for normality
+  - **ACF/PACF** plots
+  - **Histogram and Q-Q plots**
+
+SARIMA models generally showed better-behaved residuals. The ETS model, while very accurate on the test set, exhibited autocorrelation in residuals and failed the Ljung-Box and Jarque-Bera tests.
 
 ---
 
@@ -105,8 +119,13 @@ Forecast performance was evaluated on a holdout test set:
 
 ---
 
-## ⚙️ Getting Started
+## 🚀 Getting Started
 
-To run the project locally:
+To reproduce this analysis:
 
 ```r
+# Install required packages
+source("install_packages.R")
+
+# Run the R Markdown file
+rmarkdown::render("Gas_Concumption_in_California.Rmd")
