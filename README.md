@@ -17,9 +17,11 @@ Forecasting monthly residential gas consumption in California using ARIMA, SARIM
 - [Research Question](#research-question)
 - [Dataset](#dataset)
 - [Exploratory Data Analysis](#exploratory-data-analysis)
+- [Log Transformation](#log-transformation)
 - [Modeling](#modeling)
 - [Model Evaluation](#model-evaluation)
 - [Forecast Comparison](#forecast-comparison)
+- [Results Interpretation](#results-interpretation)
 - [Getting Started](#getting-started)
 - [Contact](#contact)
 
@@ -33,7 +35,7 @@ This project forecasts monthly residential gas consumption in California using t
 
 ## 🧪 Technologies
 
-- **Language:** R
+- **Language:** R  
 - **Libraries:** `forecast`, `ggplot2`, `tseries`, `urca`, `TSA`, `FinTS`, `DescTools`, `fUnitRoots`, `patchwork`, `dplyr`
 
 ---
@@ -46,40 +48,48 @@ This project forecasts monthly residential gas consumption in California using t
 
 ## 📊 Dataset
 
-- **Source:** [U.S. EIA - California Natural Gas Consumption](https://www.eia.gov/dnav/ng/hist/n3010ca2m.htm)
-- **Period:** January 1989 – September 2024 (monthly)
-- **Unit:** Million Cubic Feet (MCF)
+- **Source:** [U.S. EIA - California Natural Gas Consumption](https://www.eia.gov/dnav/ng/hist/n3010ca2m.htm)  
+- **Period:** January 1989 – September 2024 (monthly)  
+- **Unit:** Million Cubic Feet (MCF)  
 - **Missing data:** One missing value (January 2024) imputed with the historical January mean
 
 ---
 
 ## 🔍 Exploratory Data Analysis
 
-- **Trend:** Clear upward trend until ~2000s, then stabilization and slight decline
-- **Seasonality:** Strong annual cycles with winter peaks and summer lows
-- **Distribution:** Right-skewed with high variability (skewness = 0.73)
-- **Variance Stabilization:** Log transformation applied
-- **Stationarity:** ADF and KPSS tests confirmed non-stationarity; seasonal differencing used
-- **ACF/PACF:** Showed strong seasonal autocorrelation
+- **Trend:** Growth until early 2000s, then stabilization  
+- **Seasonality:** Strong annual cycles — higher in winter, lower in summer  
+- **Distribution:** Right-skewed, long-tailed (skewness = 0.73)  
+- **Stationarity:** ADF and KPSS tests confirmed the need for seasonal differencing  
+- **ACF/PACF:** Clear seasonal autocorrelation at lag 12
+
+---
+
+## 🔄 Log Transformation
+
+- A **log transformation** was applied to reduce heteroscedasticity and stabilize variance.  
+- It improved stationarity and helped satisfy normality assumptions required for ARIMA modeling.  
+- After forecasting on the **log scale**, all predicted values were **back-transformed using the exponential function** to evaluate performance in the original scale (MCF).  
+- This back-transformation was essential for interpreting the results meaningfully and computing accuracy metrics like MAE and RMSE.
 
 ---
 
 ## ⚙️ Modeling
 
 ### 🔹 ARIMA(2,0,2) — Baseline
-- Built on log-transformed data without seasonal components.
-- **Purpose:** Serve as a non-seasonal benchmark.
-- **Result:** MAPE = 20.86%, underfit due to omission of seasonality.
+- Built on log-transformed data without seasonal terms.  
+- **Purpose:** Serve as a benchmark for non-seasonal performance.  
+- **Result:** MAPE = 20.86%, significant residual autocorrelation.
 
 ### 🔹 SARIMA(2,0,1)(0,1,1)[12] — Auto Selected
-- Built with seasonal differencing and seasonal MA term.
-- **Purpose:** Capture seasonal structure automatically using `auto.arima()`.
-- **Result:** MAPE = 6.48%, Theil’s U = 0.49, residuals passed most diagnostic tests.
+- Applied on log scale with seasonal differencing.  
+- **Purpose:** Capture seasonal patterns using `auto.arima()` with drift.  
+- **Result:** MAPE = 6.48%, Theil’s U = 0.49, passed all residual diagnostics.
 
 ### 🔹 ETS(M,N,A) — Exponential Smoothing
-- Multiplicative error, no trend, additive seasonality.
-- **Purpose:** Provide a benchmark from a different model family.
-- **Result:** MAPE = 5.56%, lowest error, but **failed residual tests** (autocorrelation, non-normality).
+- Multiplicative error model with additive seasonality.  
+- **Purpose:** Provide a robust benchmark from a different modeling family.  
+- **Result:** MAPE = 5.56%, lowest forecast error, but failed Ljung-Box and Jarque-Bera tests.
 
 ---
 
@@ -98,15 +108,38 @@ This project forecasts monthly residential gas consumption in California using t
 
 ## ✅ Forecast Comparison
 
-- The **ETS model** achieved the best forecast accuracy but failed key residual diagnostics (autocorrelation, normality).
-- **SARIMA** achieved strong forecast performance and had **well-behaved residuals**, making it the **most balanced and reliable model** overall.
-- The **ARIMA model** without seasonality underperformed on all metrics and was unable to capture the strong seasonal patterns.
+- Forecasts were generated on the **log scale** and **back-transformed** for evaluation in original units.
+- While ETS yielded the **lowest MAPE**, its residuals violated independence and normality assumptions.
+- SARIMA offered strong accuracy **and** clean residual diagnostics — making it the **most balanced and reliable model**.
+- The basic ARIMA model lacked seasonality and underperformed as expected.
 
-<p align="center">
-  <img src="https://github.com/eledon/Gas_Consumption_Forecasting_with_Sarima/blob/main/Forecasts.jpg?raw=true" width="700" alt="Forecast Comparison">
-</p>
+<img src="https://github.com/eledon/Gas_Consumption_Forecasting_with_Sarima/blob/main/Forecasts.jpg?raw=true" width="700" alt="Forecast Comparison">
 
-<p align="center"><em>Figure: Forecast curves for ARIMA, SARIMA, and ETS on the test set</em></p>
+*Figure: Forecast curves for ARIMA, SARIMA, and ETS on the test set (back-transformed)*
+
+---
+
+## 📌 Results Interpretation
+
+Descriptive statistics for the original gas consumption data (in million cubic feet):
+
+- **Min:** 15,058  
+- **Max:** 88,358  
+- **Mean:** 40,053  
+- **Median:** 32,935  
+
+### 🔎 Comparing Forecast Errors to Data Scale
+
+| Model   | MAE   | RMSE  | MAPE   |
+|---------|--------|--------|--------|
+| SARIMA  | 2,725 | 5,071 | 6.48%  |
+| ETS     | 2,321 | 4,293 | 5.56%  |
+
+- The **ETS model's MAE** is about **5.8% of the mean** and just **2.6% of the data range** — a strong result.
+- **SARIMA** performs nearly as well in error metrics and **adds statistical validity** (i.e., reliable uncertainty estimation).
+- **MAPE under 7%** is generally considered excellent in real-world forecasting.
+
+✅ **Conclusion:** Both SARIMA and ETS models deliver high-quality forecasts. SARIMA is preferred for its overall **balance between accuracy and diagnostics**.
 
 ---
 
