@@ -76,42 +76,50 @@ This project forecasts monthly residential gas consumption in California using t
 
 ## ⚙️ Modeling
 
-### 🔹 ARIMA(2,0,2) — Baseline
+### 🔹 ARIMA(2,0,1) — Baseline
 - Built on log-transformed data without seasonal terms.  
 - **Purpose:** Serve as a benchmark for non-seasonal performance.  
-- **Result:** MAPE = 20.86%, significant residual autocorrelation.
+- **Result:** MAPE = 20.86%, residual autocorrelation and skewness.
 
 ### 🔹 SARIMA(2,0,1)(0,1,1)[12] — Auto Selected
 - Applied on log scale with seasonal differencing.  
 - **Purpose:** Capture seasonal patterns using `auto.arima()` with drift.  
-- **Result:** MAPE = 6.48%, Theil’s U = 0.49, passed all residual diagnostics.
+- **Result:** MAPE = 6.48%, Theil’s U = 0.49, passed Ljung-Box but **failed Jarque-Bera** test, indicating non-normal residuals.
 
 ### 🔹 ETS(M,N,A) — Exponential Smoothing
 - Multiplicative error model with additive seasonality.  
 - **Purpose:** Provide a robust benchmark from a different modeling family.  
-- **Result:** MAPE = 5.56%, lowest forecast error, but failed Ljung-Box and Jarque-Bera tests.
+- **Result:** MAPE = 5.56%, lowest forecast error, but failed both **Ljung-Box** and **Jarque-Bera** tests.
 
 ---
 
 ## 🧪 Model Evaluation
 
-| Metric           | ARIMA(2,0,2) | SARIMA(2,0,1)(0,1,1)[12] | ETS(M,N,A) |
+| Metric           | ARIMA(2,0,1) | SARIMA(2,0,1)(0,1,1)[12] | ETS(M,N,A) |
 |------------------|--------------|---------------------------|------------|
-| **MAPE**         | 20.86%       | 6.48%                     | **5.56%**  |
-| **RMSE**         | 8337         | 5071                      | 4293       |
-| **MAE**          | 6851         | 2725                      | 2321       |
-| **Residual ACF1**| 0.25         | -0.31                     | -0.53      |
+| **MAPE** (%)     | 20.86        | 6.48                      | **5.56**   |
+| **RMSE** (MCF)   | 8337         | 5071                      | 4293       |
+| **MAE** (MCF)    | 6851         | 2725                      | 2321       |
+| **ACF1**         | 0.25         | -0.31                     | -0.53      |
 | **Ljung-Box**    | ❌           | ✅                        | ❌         |
-| **Jarque-Bera**  | ❌           | ✅                        | ❌         |
+| **Jarque-Bera**  | ❌           | ❌                        | ❌         |
+| **MAE/Mean** (%) | 17.1         | 6.8                       | **5.8**    |
+
+**MAE (Mean Absolute Error)**: average size of prediction errors  
+**RMSE (Root Mean Squared Error)**: penalizes large errors more heavily  
+**MAPE (Mean Absolute Percentage Error)**: average error as a % of actuals  
+**ACF1**: autocorrelation of residuals at lag 1 (should be close to 0)  
+**MAE/Mean**: contextualizes error relative to average gas consumption (≈ 40,053 MCF)
 
 ---
 
 ## ✅ Forecast Comparison
 
-- Forecasts were generated on the **log scale** and **back-transformed** for evaluation in original units.
-- While ETS yielded the **lowest MAPE**, its residuals violated independence and normality assumptions.
-- SARIMA offered strong accuracy **and** clean residual diagnostics — making it the **most balanced and reliable model**.
-- The basic ARIMA model lacked seasonality and underperformed as expected.
+- Forecasts were made for the **last 12 months of available data: October 2023 – September 2024**
+- Models were trained on log-transformed data and **back-transformed to original scale** for error comparison.
+- While ETS yielded the **lowest MAPE**, its residuals showed autocorrelation and deviation from normality.
+- SARIMA balanced accuracy with stronger statistical diagnostics, despite failing the Jarque-Bera normality test.
+- The basic ARIMA model lacked seasonality and underperformed in both accuracy and residual checks.
 
 <img src="https://github.com/eledon/Gas_Consumption_Forecasting_with_Sarima/blob/main/Forecasts.jpg?raw=true" width="700" alt="Forecast Comparison">
 
@@ -128,18 +136,26 @@ Descriptive statistics for the original gas consumption data (in million cubic f
 - **Mean:** 40,053  
 - **Median:** 32,935  
 
-### 🔎 Comparing Forecast Errors to Data Scale
+### 🔎 Why we use Descriptive Statistics
 
-| Model   | MAE   | RMSE  | MAPE   |
-|---------|--------|--------|--------|
-| SARIMA  | 2,725 | 5,071 | 6.48%  |
-| ETS     | 2,321 | 4,293 | 5.56%  |
+Descriptive stats provide a **reference point** for evaluating the scale of forecast errors. For example:
 
-- The **ETS model's MAE** is about **5.8% of the mean** and just **2.6% of the data range** — a strong result.
-- **SARIMA** performs nearly as well in error metrics and **adds statistical validity** (i.e., reliable uncertainty estimation).
-- **MAPE under 7%** is generally considered excellent in real-world forecasting.
+- **ETS MAE = 2,321 MCF**, which is just **5.8% of the mean** — indicating very accurate forecasts.
+- Errors also cover a small portion of the data range (~73,300 MCF), suggesting the models are not wildly off even at their worst.
 
-✅ **Conclusion:** Both SARIMA and ETS models deliver high-quality forecasts. SARIMA is preferred for its overall **balance between accuracy and diagnostics**.
+✅ **Conclusion:** Both SARIMA and ETS models provide strong forecasts for monthly gas consumption in California. ETS is most accurate, but SARIMA offers the best balance of accuracy and residual reliability.
 
 ---
+
+## 🚀 Getting Started
+
+To reproduce this analysis:
+
+```r
+# Install required packages
+source("install_packages.R")
+
+# Knit the R Markdown report
+rmarkdown::render("Gas_Consumption_in_California.Rmd")
+
 
