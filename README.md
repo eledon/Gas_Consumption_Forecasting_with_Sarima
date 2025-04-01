@@ -18,7 +18,7 @@ Forecasting monthly residential gas consumption in California using ARIMA, SARIM
 - [Dataset](#dataset)
 - [Exploratory Data Analysis](#exploratory-data-analysis)
 - [Log Transformation](#log-transformation)
-- [Modeling](#modeling)
+- [Modeling](#modeling-forecast-horizon-oct-2023--sep-2024)
 - [Model Evaluation](#model-evaluation)
 - [Forecast Comparison](#forecast-comparison)
 - [Results Interpretation](#results-interpretation)
@@ -30,6 +30,8 @@ Forecasting monthly residential gas consumption in California using ARIMA, SARIM
 ## 🧭 Overview
 
 This project forecasts monthly residential gas consumption in California using three time series models: **ARIMA**, **SARIMA**, and **ETS**. The models are compared based on forecast accuracy and statistical validity of residuals to identify the most appropriate forecasting method.
+
+📄 To see the full report with code, results, and diagnostic plots, [click here](https://github.com/eledon/Gas_Consumption_Forecasting_with_Sarima/blob/main/Gas_Consumption_in_California.md).
 
 ---
 
@@ -74,42 +76,46 @@ This project forecasts monthly residential gas consumption in California using t
 
 ---
 
-## ⚙️ Modeling
+## ⚙️ Modeling (Forecast Horizon: Oct 2023 – Sep 2024)
+
+All models were trained on data up to **September 2023** and used to forecast the next 12 months, from **October 2023 to September 2024**.
 
 ### 🔹 ARIMA(2,0,1) — Baseline
-- Built on log-transformed data without seasonal terms.  
-- **Purpose:** Serve as a benchmark for non-seasonal performance.  
-- **Result:** MAPE = 20.86%, residual autocorrelation and skewness.
+- Built on log-transformed data without seasonal terms  
+- Forecasted 12 months ahead (Oct 2023 – Sep 2024)  
+- **Purpose:** Serve as a benchmark for non-seasonal performance  
+- **Result:** MAPE = 20.86%, residual autocorrelation and skewness
 
 ### 🔹 SARIMA(2,0,1)(0,1,1)[12] — Auto Selected
-- Applied on log scale with seasonal differencing.  
-- **Purpose:** Capture seasonal patterns using `auto.arima()` with drift.  
-- **Result:** MAPE = 6.48%, Theil’s U = 0.49, passed Ljung-Box but **failed Jarque-Bera** test, indicating non-normal residuals.
+- Applied on log scale with seasonal differencing  
+- Forecasted 12 months ahead (Oct 2023 – Sep 2024)  
+- **Purpose:** Capture seasonal patterns using `auto.arima()` with drift  
+- **Result:** MAPE = 6.48%, Theil’s U = 0.49, passed Ljung-Box but **failed Jarque-Bera** test
 
 ### 🔹 ETS(M,N,A) — Exponential Smoothing
-- Multiplicative error model with additive seasonality.  
-- **Purpose:** Provide a robust benchmark from a different modeling family.  
-- **Result:** MAPE = 5.56%, lowest forecast error, but failed both **Ljung-Box** and **Jarque-Bera** tests.
+- Multiplicative error model with additive seasonality  
+- Forecasted 12 months ahead (Oct 2023 – Sep 2024)  
+- **Purpose:** Provide a robust benchmark from a different modeling family  
+- **Result:** MAPE = 5.56%, lowest forecast error, but failed both **Ljung-Box** and **Jarque-Bera** tests
 
 ---
 
 ## 🧪 Model Evaluation
 
-| Metric           | ARIMA(2,0,1) | SARIMA(2,0,1)(0,1,1)[12] | ETS(M,N,A) |
-|------------------|--------------|---------------------------|------------|
-| **MAPE** (%)     | 20.86        | 6.48                      | **5.56**   |
-| **RMSE** (MCF)   | 8337         | 5071                      | 4293       |
-| **MAE** (MCF)    | 6851         | 2725                      | 2321       |
-| **ACF1**         | 0.25         | -0.31                     | -0.53      |
-| **Ljung-Box**    | ❌           | ✅                        | ❌         |
-| **Jarque-Bera**  | ❌           | ❌                        | ❌         |
-| **MAE/Mean** (%) | 17.1         | 6.8                       | **5.8**    |
+| Metric           | ARIMA(2,0,1) | SARIMA(2,0,1)(0,1,1)[12] | ETS(M,N,A) | **Rel. Error vs Mean (%)** |
+|------------------|--------------|---------------------------|------------|-----------------------------|
+| **MAPE** (%)     | 20.86        | 6.48                      | **5.56**   | —                           |
+| **RMSE** (MCF)   | 8,337        | 5,071                     | **4,293**  | —                           |
+| **MAE** (MCF)    | 6,851        | 2,725                     | **2,321**  | 17.1 / 6.8 / **5.8**         |
+| **ACF1**         | 0.25         | -0.31                     | -0.53      | —                           |
+| **Ljung-Box**    | ❌           | ✅                        | ❌         | —                           |
+| **Jarque-Bera**  | ❌           | ❌                        | ❌         | —                           |
 
-**MAE (Mean Absolute Error)**: average size of prediction errors  
-**RMSE (Root Mean Squared Error)**: penalizes large errors more heavily  
-**MAPE (Mean Absolute Percentage Error)**: average error as a % of actuals  
-**ACF1**: autocorrelation of residuals at lag 1 (should be close to 0)  
-**MAE/Mean**: contextualizes error relative to average gas consumption (≈ 40,053 MCF)
+**MAE (Mean Absolute Error)**: Average absolute difference between predicted and actual values  
+**RMSE (Root Mean Squared Error)**: Penalizes larger errors more than MAE  
+**MAPE (Mean Absolute Percentage Error)**: Expresses forecast error as a % of actual values  
+**ACF1**: Lag-1 autocorrelation of residuals (ideally near zero)  
+**Rel. Error vs Mean**: MAE divided by the mean gas consumption (≈ 40,053 MCF) × 100% — shows model error relative to average monthly usage
 
 ---
 
@@ -157,5 +163,6 @@ source("install_packages.R")
 
 # Knit the R Markdown report
 rmarkdown::render("Gas_Consumption_in_California.Rmd")
+
 
 
