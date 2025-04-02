@@ -22,8 +22,6 @@ Forecasting monthly residential gas consumption in California using ARIMA, SARIM
 - [Model Evaluation](#model-evaluation)
 - [Forecast Comparison](#forecast-comparison)
 - [Results Interpretation](#results-interpretation)
-- [Getting Started](#getting-started)
-- [Contact](#contact)
 
 ---
 
@@ -152,17 +150,6 @@ Descriptive stats provide a **reference point** for evaluating the scale of fore
 ✅ **Conclusion:** Both SARIMA and ETS models provide strong forecasts for monthly gas consumption in California. ETS is most accurate, but SARIMA offers the best balance of accuracy and residual reliability.
 
 ---
-
-## 🚀 Getting Started
-
-To reproduce this analysis:
-
-```r
-# Install required packages
-source("install_packages.R")
-
-# Knit the R Markdown report
-rmarkdown::render("Gas_Consumption_in_California.Rmd")
 
 
 
