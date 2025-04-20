@@ -1,7 +1,7 @@
 Gas Consumption in California
 ================
 Elena
-2025-04-01
+2025-04-20
 
 - [About this project](#about-this-project)
 - [Research Question](#research-question)
@@ -45,14 +45,10 @@ and long-term consumption patterns.
 ## EDA
 
 ``` r
-# Restart R before running this (no packages loaded yet)
-
-# List of required packages
 pkgs <- c("rmarkdown", "knitr", "ggplot2", "patchwork",
           "forecast", "tseries", "urca", "DescTools", "dplyr",
           "FinTS", "fUnitRoots", "TSA")
 
-# Install any that aren't already installed
 install_if_missing <- function(p) {
   if (!requireNamespace(p, quietly = TRUE)) {
     install.packages(p, dependencies = TRUE)
@@ -60,7 +56,6 @@ install_if_missing <- function(p) {
 }
 invisible(sapply(pkgs, install_if_missing))
 
-# Load libraries
 invisible(lapply(pkgs, library, character.only = TRUE))
 ```
 
@@ -231,7 +226,6 @@ pattern suggesting a seasonal structure.
 are at play, their effect diminishes over time.
 
 ``` r
-# Log-transformed time series
 p_acf <- ggAcf(gas_ts, lag.max = 24) +
   ggtitle("ACF of Log-Transf Gas Cons-n") +
   theme_minimal(base_size = 12) +
@@ -242,7 +236,6 @@ p_pacf <- ggPacf(gas_ts, lag.max = 24) +
   theme_minimal(base_size = 12) +
   theme(plot.title = element_text(hjust = 0.5, face = "bold"))
 
-# Combine with patchwork
 p_acf + p_pacf
 ```
 
@@ -255,20 +248,19 @@ chronological hold-out method. We will automatically hold out the last
 12 months.
 
 ``` r
-# Total number of observations
 n <- length(gas_ts)
 
-# Compute end of training period (12 months before the last observation)
+# end of training period (12 months before the last observation)
 train_end_index <- n - 12
 train_end_year <- start(gas_ts)[1] + (train_end_index - 1) %/% 12
 train_end_month <- (train_end_index - 1) %% 12 + 1
 
-# Compute start of testing period (1 month after training ends)
+# start of testing period (1 month after training ends)
 test_start_index <- train_end_index + 1
 test_start_year <- start(gas_ts)[1] + (test_start_index - 1) %/% 12
 test_start_month <- (test_start_index - 1) %% 12 + 1
 
-# Create the train and test sets
+# train and test sets
 train <- window(gas_ts, end = c(train_end_year, train_end_month))
 test <- window(gas_ts, start = c(test_start_year, test_start_month))
 ```
@@ -314,13 +306,9 @@ automatically:
 - With non-zero mean: The model includes a constant (intercept)
 
 ``` r
-# Fit ARIMA model to training data
 fc_arima_model <- auto.arima(train, seasonal = FALSE)
-
-# Forecast future values (same length as test set)
 fc_arima <- forecast(fc_arima_model, h = length(test))
 
-# Plot forecast vs test
 autoplot(fc_arima) +
   autolayer(test, series = "Test Data", PI = FALSE) +
   ggtitle("ARIMA: Forecast vs Test Data") +
@@ -331,15 +319,12 @@ autoplot(fc_arima) +
 ![](plots/auto-arima-1.png)<!-- -->
 
 ``` r
-# Back-transform forecast and prediction intervals
 mean_arima <- exp(fc_arima$mean)
 lower_arima <- exp(fc_arima$lower)
 upper_arima <- exp(fc_arima$upper)
-
-# Convert to ts object with same time index as test_orig
 mean_arima  <- ts(mean_arima,  start = start(test_orig), frequency = 12)
-lower_arima <- ts(lower_arima[,2], start = start(test_orig), frequency = 12)  # 95% lower bound
-upper_arima <- ts(upper_arima[,2], start = start(test_orig), frequency = 12)  # 95% upper bound
+lower_arima <- ts(lower_arima[,2], start = start(test_orig), frequency = 12)  
+upper_arima <- ts(upper_arima[,2], start = start(test_orig), frequency = 12)  
 ```
 
 It is time to perform out-of-sample evaluation. We back-transformed our
@@ -362,10 +347,7 @@ There are also signs of mild overfitting because the model fits better
 train data than the test data.
 
 ``` r
-# In-sample fitted values (from model trained on log scale)
 fitted_orig <- exp(fitted(fc_arima))
-
-# Out-of-sample forecast mean
 fc_mean_arima <- exp(fc_arima$mean)
 acc_train_arima <- accuracy(fitted_orig, train_orig)
 acc_test_arima  <- accuracy(fc_mean_arima, test_orig)
@@ -425,7 +407,6 @@ remains. It could be improved, particularly for forecasting more recent
 periods.
 
 ``` r
-# Plot forecast vs test on original scale
 autoplot(fc_mean_arima, series = "Forecast") +
   autolayer(test_orig, series = "Test Data", PI = FALSE) +
   ggtitle("Forecast vs Test Data (original scale)") +
@@ -491,10 +472,7 @@ forecasting performance.
   and test data
 
 ``` r
-# In-sample fitted values (from model trained on log scale)
 fitted_sarima <- exp(fitted(sarima_model))
-
-# Out-of-sample forecast mean
 fc_mean_sarima <- exp(fc_sarima$mean)
 acc_train_sarima <- accuracy(fitted_sarima, train_orig)
 acc_test_sarima  <- accuracy(fc_mean_sarima, test_orig)
@@ -571,7 +549,6 @@ and moderate autocorrelation in test residuals (ACF1 = –0.31), the
 overall forecast accuracy is reliable.
 
 ``` r
-# Plot forecast vs test on original scale
 autoplot(fc_mean_sarima, series = "Forecast") +
   autolayer(test_orig, series = "Test Data", PI = FALSE) +
   ggtitle("Forecast vs Test Data (original scale)") +
@@ -650,10 +627,7 @@ autoplot(fc_ets) +
   better performance than a naive benchmark.
 
 ``` r
-# In-sample fitted values (from model trained on log scale)
 fitted_ets <- exp(fitted(ets_model))
-
-# Out-of-sample forecast mean
 fc_mean_ets <- exp(fc_ets$mean)
 acc_train_ets <- accuracy(fitted_ets, train_orig)
 acc_test_ets  <- accuracy(fc_mean_ets, test_orig)
@@ -705,7 +679,6 @@ tseries::jarque.bera.test(residuals(ets_model))
     ## X-squared = 17.712, df = 2, p-value = 0.0001425
 
 ``` r
-# Plot forecast vs test on original scale
 autoplot(fc_mean_ets, series = "Forecast") +
   autolayer(test_orig, series = "Test Data", PI = FALSE) +
   ggtitle("Forecast vs Test Data (original scale)") +
