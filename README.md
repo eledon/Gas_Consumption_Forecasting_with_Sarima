@@ -58,7 +58,7 @@ This project forecasts monthly residential gas consumption in California using t
 ## 🔍 Exploratory Data Analysis
 
 - **Trend:** Growth until early 2000s, then stabilization  
-- **Seasonality:** Strong annual cycles — higher in winter, lower in summer  
+- **Seasonality:** Strong annual cycles - higher in winter, lower in summer  
 - **Distribution:** Right-skewed, long-tailed (skewness = 0.73)  
 - **Stationarity:** ADF and KPSS tests confirmed the need for seasonal differencing  
 - **ACF/PACF:** Clear seasonal autocorrelation at lag 12
@@ -80,13 +80,13 @@ All models were trained on data up to **September 2023** and used to forecast th
 
 ### 🔹 ARIMA(2,0,1) — Baseline
 - Built on log-transformed data without seasonal terms  
-- Forecasted 12 months ahead (Oct 2023 – Sep 2024)  
+- Forecasted 12 months ahead (Oct 2023 - Sep 2024)  
 - **Purpose:** Serve as a benchmark for non-seasonal performance  
 - **Result:** MAPE = 20.86%, residual autocorrelation and skewness
 
 ### 🔹 SARIMA(2,0,1)(0,1,1)[12] — Auto Selected
 - Applied on log scale with seasonal differencing  
-- Forecasted 12 months ahead (Oct 2023 – Sep 2024)  
+- Forecasted 12 months ahead (Oct 2023 - Sep 2024)  
 - **Purpose:** Capture seasonal patterns using `auto.arima()` with drift  
 - **Result:** MAPE = 6.48%, Theil’s U = 0.49, passed Ljung-Box but **failed Jarque-Bera** test
 
@@ -113,7 +113,7 @@ All models were trained on data up to **September 2023** and used to forecast th
 **RMSE (Root Mean Squared Error)**: Penalizes larger errors more than MAE  
 **MAPE (Mean Absolute Percentage Error)**: Expresses forecast error as a % of actual values  
 **ACF1**: Lag-1 autocorrelation of residuals (ideally near zero)  
-**Rel. Error vs Mean**: MAE divided by the mean gas consumption (≈ 40,053 MCF) × 100% — shows model error relative to average monthly usage
+**Rel. Error vs Mean**: MAE divided by the mean gas consumption (≈ 40,053 MCF) × 100% - shows model error relative to average monthly usage
 
 ---
 
@@ -144,7 +144,7 @@ Descriptive statistics for the original gas consumption data (in million cubic f
 
 Descriptive stats provide a **reference point** for evaluating the scale of forecast errors. For example:
 
-- **ETS MAE = 2,321 MCF**, which is just **5.8% of the mean** — indicating very accurate forecasts.
+- **ETS MAE = 2,321 MCF**, which is just **5.8% of the mean** - indicating very accurate forecasts.
 - Errors also cover a small portion of the data range (~73,300 MCF), suggesting the models are not wildly off even at their worst.
 
 ✅ **Conclusion:** Both SARIMA and ETS models provide strong forecasts for monthly gas consumption in California. ETS is most accurate, but SARIMA offers the best balance of accuracy and residual reliability.
