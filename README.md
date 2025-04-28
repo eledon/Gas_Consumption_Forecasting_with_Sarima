@@ -78,19 +78,19 @@ This project forecasts monthly residential gas consumption in California using t
 
 All models were trained on data up to **September 2023** and used to forecast the next 12 months, from **October 2023 to September 2024**.
 
-### 🔹 ARIMA(2,0,1) — Baseline
+### 🔹 ARIMA(2,0,1) - Baseline
 - Built on log-transformed data without seasonal terms  
 - Forecasted 12 months ahead (Oct 2023 - Sep 2024)  
 - **Purpose:** Serve as a benchmark for non-seasonal performance  
 - **Result:** MAPE = 20.86%, residual autocorrelation and skewness
 
-### 🔹 SARIMA(2,0,1)(0,1,1)[12] — Auto Selected
+### 🔹 SARIMA(2,0,1)(0,1,1)[12] - Auto Selected
 - Applied on log scale with seasonal differencing  
 - Forecasted 12 months ahead (Oct 2023 - Sep 2024)  
 - **Purpose:** Capture seasonal patterns using `auto.arima()` with drift  
 - **Result:** MAPE = 6.48%, Theil’s U = 0.49, passed Ljung-Box but **failed Jarque-Bera** test
 
-### 🔹 ETS(M,N,A) — Exponential Smoothing
+### 🔹 ETS(M,N,A) - Exponential Smoothing
 - Multiplicative error model with additive seasonality  
 - Forecasted 12 months ahead (Oct 2023 – Sep 2024)  
 - **Purpose:** Provide a robust benchmark from a different modeling family  
