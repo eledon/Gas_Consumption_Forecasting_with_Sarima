@@ -49,7 +49,7 @@ This project forecasts monthly residential gas consumption in California using t
 ## 📊 Dataset
 
 - **Source:** [U.S. EIA - California Natural Gas Consumption](https://www.eia.gov/dnav/ng/hist/n3010ca2m.htm)  
-- **Period:** January 1989 – September 2024 (monthly)  
+- **Period:** January 1989 - September 2024 (monthly)  
 - **Unit:** Million Cubic Feet (MCF)  
 - **Missing data:** One missing value (January 2024) imputed with the historical January mean
 
