@@ -102,12 +102,12 @@ All models were trained on data up to **September 2023** and used to forecast th
 
 | Metric           | ARIMA(2,0,1) | SARIMA(2,0,1)(0,1,1)[12] | ETS(M,N,A) | **Rel. Error vs Mean (%)** |
 |------------------|--------------|---------------------------|------------|-----------------------------|
-| **MAPE** (%)     | 20.86        | 6.48                      | **5.56**   | —                           |
-| **RMSE** (MCF)   | 8,337        | 5,071                     | **4,293**  | —                           |
+| **MAPE** (%)     | 20.86        | 6.48                      | **5.56**   | -                           |
+| **RMSE** (MCF)   | 8,337        | 5,071                     | **4,293**  | -                           |
 | **MAE** (MCF)    | 6,851        | 2,725                     | **2,321**  | 17.1 / 6.8 / **5.8**         |
-| **ACF1**         | 0.25         | -0.31                     | -0.53      | —                           |
-| **Ljung-Box**    | ❌           | ✅                        | ❌         | —                           |
-| **Jarque-Bera**  | ❌           | ❌                        | ❌         | —                           |
+| **ACF1**         | 0.25         | -0.31                     | -0.53      | -                           |
+| **Ljung-Box**    | ❌           | ✅                        | ❌         | -                           |
+| **Jarque-Bera**  | ❌           | ❌                        | ❌         | -                           |
 
 **MAE (Mean Absolute Error)**: Average absolute difference between predicted and actual values  
 **RMSE (Root Mean Squared Error)**: Penalizes larger errors more than MAE  
